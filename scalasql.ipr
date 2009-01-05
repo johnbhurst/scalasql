@@ -2,12 +2,25 @@
 <project relativePaths="false" version="4">
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
+    <buildFile url="file://$PROJECT_DIR$/build.xml">
+      <additionalClassPath>
+        <entry path="file:///home/jhurst/.ant/lib/scala-compiler.jar" />
+        <entry path="file:///home/jhurst/.ant/lib/scala-library.jar" />
+      </additionalClassPath>
+      <antReference projectDefault="true" />
+      <customJdkName value="" />
+      <maximumHeapSize value="128" />
+      <maximumStackSize value="32" />
+      <properties />
+    </buildFile>
   </component>
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
   <component name="CodeStyleSettingsManager">
-    <option name="PER_PROJECT_SETTINGS" />
+    <option name="PER_PROJECT_SETTINGS">
+      <value />
+    </option>
     <option name="USE_PER_PROJECT_SETTINGS" value="false" />
   </component>
   <component name="CompilerConfiguration">
