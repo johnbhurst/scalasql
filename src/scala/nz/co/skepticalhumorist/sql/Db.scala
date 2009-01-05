@@ -69,6 +69,9 @@ class Db(dataSource: DataSource) {
   // JH_TODO: update count?
 
   def query(sql: String, params: Object*)(f: ResultSet => Unit) = {
+
+
+
     executeWithStatement {statement =>
       val resultSet = statement.executeQuery(sql)
       while (resultSet.next) {
@@ -105,6 +108,17 @@ class Db(dataSource: DataSource) {
       val result = f(statement)
       statement.close
       result
+    }
+  }
+
+  private def executeWithPreparedStatement(sql: String, params: Object*)(f: PreparedStatement => Unit) = {
+    executeWithConnection {connection =>
+      val statement = connection.prepareStatement(sql)
+      for (i <- 0 until params.length) {
+        statement.setObject(i + 1, params(i))
+      }
+      f(statement)
+      statement.close
     }
   }
 
