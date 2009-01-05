@@ -21,14 +21,10 @@
   </target>
 
   <target name="run" depends="compile-test">
-    <java classname="scala.tools.nsc.MainGenericRunner">
-      <sysproperty key="scala.home" value="/usr/local/scala-2.7.2.final"/>
-      <sysproperty key="env.classpath" value="out/production/scalasql/:out/test/scalasql/:lib/ojdbc14-10.2.0.3.0.jar"/>
-      <classpath path="/home/jhurst/.ant/lib/scala-compiler.jar"/>
+    <java classname="nz.co.skepticalhumorist.sql.Test">
       <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
       <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
       <classpath path="build/classes"/>
-      <arg value="nz.co.skepticalhumorist.sql.Test"/>
     </java>
   </target>
 
