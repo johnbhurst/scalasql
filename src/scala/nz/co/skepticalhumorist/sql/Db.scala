@@ -44,7 +44,6 @@ class Db(dataSource: DataSource) {
 //  }
 //
 
-  // JH_TODO: should return Boolean, and make available getResultSet() or getUpdateCount()
   def execute(sql: String, params: Object*): Boolean = {
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       boolean2Boolean(preparedStatement.execute())
