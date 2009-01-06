@@ -70,7 +70,7 @@ class Db(dataSource: DataSource) {
   // JH_TODO: update count?
 
   def query(sql: String, params: Object*)(f: ResultSet => Unit) = {
-    queryMeta(sql, params: _*) {meta: ResultSetMetaData => } (f)
+    queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
   }
 
   def queryMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) = {
@@ -94,7 +94,7 @@ class Db(dataSource: DataSource) {
   }
 
   def rows(sql: String, params: Object*): List[Seq[Object]] = {
-    rowsMeta(sql, params: _*) {meta: ResultSetMetaData => }
+    rowsMeta(sql, params: _*) {ResultSetMetaData => }
   }
 
   def rowsMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
