@@ -12,7 +12,14 @@ object Test extends Application {
   dataSource.setUser("scalasql")
   dataSource.setPassword("scalasql")
   val db = new Db(dataSource)
+  println("Result 1:")
   db.query("SELECT * FROM test WHERE name LIKE '%' || ? || '%'", "T") {resultSet =>
     println(resultSet.getString("name"))
+  }
+
+  println("Result 2:")
+  val rows = db.rows("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%'", "T") {meta => }
+  for (row <- rows) {
+    println(row(0) + ", " + row(1))
   }
 }

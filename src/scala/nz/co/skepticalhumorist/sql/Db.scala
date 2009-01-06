@@ -4,6 +4,7 @@
 
 package nz.co.skepticalhumorist.sql
 
+import _root_.scala.collection.mutable.ListBuffer
 import java.sql._
 import javax.sql._
 
@@ -69,7 +70,7 @@ class Db(dataSource: DataSource) {
   // JH_TODO: update count?
 
   def query(sql: String, params: Object*)(f: ResultSet => Unit) = {
-    executeWithPreparedStatement(sql, params: _*) {preparedStatement =>
+    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       val resultSet = preparedStatement.executeQuery()
       while (resultSet.next) {
         f(resultSet)
@@ -82,14 +83,25 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-  def rows(sql: String, params: Object*): List[Seq[Object]] = {
-    List()
-    // JH_TODO
-  }
+//  def rows(sql: String, params: Object*): List[Seq[Object]] = {
+//    rows(sql, params: _*) {meta: ResultSetMetaData => }
+//  }
 
   def rows(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
-    List()
-    // JH_TODO
+    val result = new ListBuffer[Seq[Object]]
+    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
+      var first = true
+      val resultSet = preparedStatement.executeQuery
+      while (resultSet.next) {
+        val resultRow = new scala.Array[Object](resultSet.getMetaData.getColumnCount)
+        for (i <- 0 until resultSet.getMetaData.getColumnCount) {
+          resultRow(i) = resultSet.getObject(i + 1)
+        }
+        result += resultRow
+      }
+      resultSet.close
+    }
+    result.toList
   }
 
   private def executeWithConnection(f: Connection => AnyRef): AnyRef = {
@@ -108,7 +120,7 @@ class Db(dataSource: DataSource) {
     }
   }
 
-  private def executeWithPreparedStatement(sql: String, params: Object*)(f: PreparedStatement => Unit) = {
+  private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => Unit) = {
     executeWithConnection {connection =>
       val statement = connection.prepareStatement(sql)
       for (i <- 0 until params.length) {
