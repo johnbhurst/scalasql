@@ -113,12 +113,18 @@ class Db(dataSource: DataSource) {
   }
 
   private def resultsToSeqRow(resultSet: ResultSet): Seq[Object] = {
+    // JH_TODO: I can't get the simpler "yield" version below to work.
+    // It seems to be some kind of deferred evaluation problem, such that
+    // the ResultSet is accessed after it is closed.
+    // Maybe we need a way to force the yield to fully evaluate the elements.
     val columnCount = resultSet.getMetaData.getColumnCount
     val result = new scala.Array[Object](columnCount)
     for (i <- 0 until columnCount) {
       result(i) = resultSet.getObject(i + 1)
     }
     result
+//    for (i <- 0 until columnCount)
+//      yield resultSet.getObject(i + 1)
   }
 
   private def executeWithConnection[T](f: Connection => T): T = {
@@ -169,7 +175,6 @@ class Db(dataSource: DataSource) {
     executeFirstAndCloseResultSet(resultSet)(meta)(f)
   }
 
-  // JH_TODO: return type?
   // JH_TODO: return Option?
   private def executeFirstAndCloseResultSet[T](resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): T = {
     // JH_TODO: test result of resultSet.next()
