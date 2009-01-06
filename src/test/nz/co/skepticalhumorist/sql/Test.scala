@@ -36,4 +36,12 @@ object Test extends Application {
   for (row <- rows2) {
     println(row(0) + ", " + row(1))
   }
+
+  println("Test 5:")
+  db.execute("UPDATE test SET name = 'one' WHERE id = ? ", int2Integer(1))
+  db.execute("UPDATE test SET name = 'one' WHERE id = ? ", int2Integer(-1))
+  db.execute("UPDATE test SET name = 'ONE' WHERE id = 1")
+  // JH_TODO: verify update
+
+  
 }

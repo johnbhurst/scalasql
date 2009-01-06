@@ -4,7 +4,8 @@
 
 package nz.co.skepticalhumorist.sql
 
-import _root_.scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ListBuffer
+import scala.runtime.RichBoolean
 import java.sql._
 import javax.sql._
 
@@ -42,9 +43,12 @@ class Db(dataSource: DataSource) {
 //    // JH_TODO
 //  }
 //
-  def execute(sql: String, params: Object*): Boolean = {
-    true
-    // JH_TODO
+
+  // JH_TODO: should return Boolean, and make available getResultSet() or getUpdateCount()
+  def execute(sql: String, params: Object*) = {
+    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
+      boolean2Boolean(preparedStatement.execute())
+    }
   }
 
   def executeInsert(sql: String, params: Object*): List[Object] = {
@@ -134,14 +138,15 @@ class Db(dataSource: DataSource) {
     resultSet.close
   }
 
-  private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => Unit) = {
+  private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => AnyRef) = {
     executeWithConnection {connection =>
       val statement = connection.prepareStatement(sql)
       for (i <- 0 until params.length) {
         statement.setObject(i + 1, params(i))
       }
-      f(statement)
+      val result = f(statement)
       statement.close
+      result
     }
   }
 
