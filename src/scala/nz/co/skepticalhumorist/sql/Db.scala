@@ -46,8 +46,8 @@ class Db(dataSource: DataSource) {
 
   def execute(sql: String, params: Object*): Boolean = {
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      boolean2Boolean(preparedStatement.execute())
-    }.asInstanceOf[Boolean]
+      preparedStatement.execute()
+    }
   }
 
 //  // JH_TODO
@@ -57,8 +57,8 @@ class Db(dataSource: DataSource) {
 
   def executeUpdate(sql: String, params: Object*): Int = {
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      int2Integer(preparedStatement.executeUpdate())
-    }.asInstanceOf[Int]
+      preparedStatement.executeUpdate()
+    }
   }
 
   def firstRow(sql: String, params: Object*) : Seq[Object] = {
@@ -66,12 +66,11 @@ class Db(dataSource: DataSource) {
   }
 
   def firstRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): Seq[Object] = {
-    val result = prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
+    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       executeFirstWithResultSet(preparedStatement)(meta) {resultSet =>
         resultsToSeqRow(resultSet)
       }
     }
-    result.asInstanceOf[Seq[Object]]
   }
 
   // JH_TODO: getConnection?
