@@ -3,9 +3,10 @@
 # 2009-01-06
 
 2009-01-06
-  Ant <scalac>                                                        done
-  DbUnit test cases
-  try/finally
+  Ant <scalac>                                                        2009-01-06
+  try/finally                                                         2009-01-06
+  Parameterized return values instead of AnyRef?                      2009-01-07
   Object/AnyRef
+  DbUnit test cases
 
 
