@@ -75,17 +75,9 @@ class Db(dataSource: DataSource) {
 
   def queryMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) = {
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      val resultSet = preparedStatement.executeQuery()
-      var first = true
-      while (resultSet.next) {
-        val metaData = resultSet.getMetaData
-        if (first) {
-          meta(metaData)
-          first = false
-        }
+      executeWithResultSet(preparedStatement)(meta) {resultSet =>
         f(resultSet)
       }
-      resultSet.close
     }
   }
 
@@ -100,21 +92,14 @@ class Db(dataSource: DataSource) {
   def rowsMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
     val result = new ListBuffer[Seq[Object]]
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      var first = true
-      val resultSet = preparedStatement.executeQuery
-      while (resultSet.next) {
-        val metaData = resultSet.getMetaData
-        if (first) {
-          meta(metaData)
-          first = false
-        }
+      executeWithResultSet(preparedStatement)(meta) {resultSet =>
+        val metaData = resultSet.getMetaData      
         val resultRow = new scala.Array[Object](metaData.getColumnCount)
         for (i <- 0 until metaData.getColumnCount) {
           resultRow(i) = resultSet.getObject(i + 1)
         }
         result += resultRow
       }
-      resultSet.close
     }
     result.toList
   }
@@ -133,6 +118,20 @@ class Db(dataSource: DataSource) {
       statement.close
       result
     }
+  }
+
+  private def executeWithResultSet(preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
+    val resultSet = preparedStatement.executeQuery
+    var first = true
+    while (resultSet.next) {
+      val metaData = resultSet.getMetaData
+      if (first) {
+        meta(metaData)
+        first = false
+      }
+      f(resultSet)
+    }
+    resultSet.close
   }
 
   private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => Unit) = {
