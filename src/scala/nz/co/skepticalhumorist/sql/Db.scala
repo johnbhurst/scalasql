@@ -122,17 +122,23 @@ class Db(dataSource: DataSource) {
 
   private def executeWithConnection(f: Connection => AnyRef): AnyRef = {
     val connection = dataSource.getConnection
-    val result = f(connection)
-    connection.close
-    result
+    try {
+      f(connection)
+    }
+    finally {
+      connection.close
+    }
   }
 
   private def executeWithStatement(f: Statement => AnyRef) = {
     executeWithConnection {connection =>
       val statement = connection.createStatement
-      val result = f(statement)
-      statement.close
-      result
+      try {
+        f(statement)
+      }
+      finally {
+        statement.close
+      }
     }
   }
 
@@ -143,14 +149,18 @@ class Db(dataSource: DataSource) {
 
   private def executeAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
     var first = true
-    while (resultSet.next) {
-      if (first) {
-        meta(resultSet.getMetaData)
-        first = false
+    try {
+      while (resultSet.next) {
+        if (first) {
+          meta(resultSet.getMetaData)
+          first = false
+        }
+        f(resultSet)
       }
-      f(resultSet)
     }
-    resultSet.close
+    finally {
+      resultSet.close
+    }
   }
 
   private def executeFirstWithResultSet(preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
@@ -162,22 +172,28 @@ class Db(dataSource: DataSource) {
   // JH_TODO: return Option?
   private def executeFirstAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
     // JH_TODO: test result of resultSet.next()
-    resultSet.next
-    meta(resultSet.getMetaData)
-    val result = f(resultSet)
-    resultSet.close
-    result
+    try {
+      resultSet.next
+      meta(resultSet.getMetaData)
+      f(resultSet)
+    }
+    finally {
+      resultSet.close
+    }
   }
 
   private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => AnyRef): AnyRef = {
     executeWithConnection {connection =>
       val statement = connection.prepareStatement(sql)
-      for (i <- 0 until params.length) {
-        statement.setObject(i + 1, params(i))
+      try {
+        for (i <- 0 until params.length) {
+          statement.setObject(i + 1, params(i))
+        }
+        f(statement)
       }
-      val result = f(statement)
-      statement.close
-      result
+      finally {
+        statement.close
+      }
     }
   }
 
