@@ -22,7 +22,7 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-  def call(sql: String, params: Object*)(f: ResultSet => Unit) = {
+  def callResultSet(sql: String, params: Object*)(f: ResultSet => Unit) = {
     // JH_TODO
   }
 
