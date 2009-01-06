@@ -34,14 +34,14 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-  def eachRow(sql: String, params: Object*)(f: Seq[Object] => Unit) = {
-    // JH_TODO
-  }
-
-  def eachRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: Seq[Object] => Unit) = {
-    // JH_TODO
-  }
-
+//  def eachRow(sql: String, params: Object*)(f: Seq[Object] => Unit) = {
+//    // JH_TODO
+//  }
+//
+//  def eachRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: Seq[Object] => Unit) = {
+//    // JH_TODO
+//  }
+//
   def execute(sql: String, params: Object*): Boolean = {
     true
     // JH_TODO
