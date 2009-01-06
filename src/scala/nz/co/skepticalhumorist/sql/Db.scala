@@ -83,11 +83,11 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-//  def rows(sql: String, params: Object*): List[Seq[Object]] = {
-//    rows(sql, params: _*) {meta: ResultSetMetaData => }
-//  }
+  def rows(sql: String, params: Object*): List[Seq[Object]] = {
+    rowsWithMeta(sql, params: _*) {meta: ResultSetMetaData => }
+  }
 
-  def rows(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
+  def rowsWithMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
     val result = new ListBuffer[Seq[Object]]
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       var first = true

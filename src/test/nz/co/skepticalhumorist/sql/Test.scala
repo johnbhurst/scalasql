@@ -18,10 +18,16 @@ object Test extends Application {
   }
 
   println("Result 2:")
-  val rows = db.rows("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%'", "T") {meta =>
+  val rows = db.rowsWithMeta("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%'", "T") {meta =>
     println(meta.getColumnName(1) + ", " + meta.getColumnName(2))
   }
   for (row <- rows) {
+    println(row(0) + ", " + row(1))
+  }
+
+  println("Result 3:")
+  val rows2 = db.rows("SELECT * FROM test WHERE id = 2")
+  for (row <- rows2) {
     println(row(0) + ", " + row(1))
   }
 }
