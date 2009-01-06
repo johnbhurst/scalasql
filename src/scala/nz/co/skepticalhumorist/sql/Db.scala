@@ -50,14 +50,15 @@ class Db(dataSource: DataSource) {
     }.asInstanceOf[Boolean]
   }
 
-  def executeInsert(sql: String, params: Object*): List[Object] = {
-    List()
-    // JH_TODO
-  }
+//  // JH_TODO
+//  def executeInsert(sql: String, params: Object*): List[Seq[Object]] = {
+//    List()
+//  }
 
   def executeUpdate(sql: String, params: Object*): Int = {
-    0
-    // JH_TODO
+    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
+      int2Integer(preparedStatement.executeUpdate())
+    }.asInstanceOf[Int]
   }
 
   def firstRow(sql: String, params: Object*) : Seq[Object] = {
@@ -96,15 +97,19 @@ class Db(dataSource: DataSource) {
     val result = new ListBuffer[Seq[Object]]
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       executeWithResultSet(preparedStatement)(meta) {resultSet =>
-        val metaData = resultSet.getMetaData      
-        val resultRow = new scala.Array[Object](metaData.getColumnCount)
-        for (i <- 0 until metaData.getColumnCount) {
-          resultRow(i) = resultSet.getObject(i + 1)
-        }
-        result += resultRow
+        result += resultsToSeqRow(resultSet)
       }
     }
     result.toList
+  }
+
+  private def resultsToSeqRow(resultSet: ResultSet): Seq[Object] = {
+    val metaData = resultSet.getMetaData
+    val result = new scala.Array[Object](metaData.getColumnCount)
+    for (i <- 0 until metaData.getColumnCount) {
+      result(i) = resultSet.getObject(i + 1)
+    }
+    result
   }
 
   private def executeWithConnection(f: Connection => AnyRef): AnyRef = {
@@ -125,6 +130,10 @@ class Db(dataSource: DataSource) {
 
   private def executeWithResultSet(preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
     val resultSet = preparedStatement.executeQuery
+    executeAndCloseResultSet(resultSet)(meta)(f)
+  }
+
+  private def executeAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
     var first = true
     while (resultSet.next) {
       val metaData = resultSet.getMetaData

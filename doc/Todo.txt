@@ -6,4 +6,6 @@
   Ant <scalac>                                                        done
   DbUnit test cases
   try/finally
+  Object/AnyRef
+
 
