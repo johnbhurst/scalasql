@@ -38,7 +38,7 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-  def eachRow(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: Seq[Object] => Unit) = {
+  def eachRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: Seq[Object] => Unit) = {
     // JH_TODO
   }
 
