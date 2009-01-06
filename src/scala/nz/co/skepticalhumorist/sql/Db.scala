@@ -19,11 +19,11 @@ class Db(dataSource: DataSource) {
   // JH_TODO: newInstance with URL, user, password
   // JH_TODO: newInstance with URL, user, password, driver class name
 
-  def call(sql: String, params: Object*) = {
+  def call(sql: String, params: AnyRef*) = {
     // JH_TODO
   }
 
-  def callResultSet(sql: String, params: Object*)(f: ResultSet => Unit) = {
+  def callResultSet(sql: String, params: AnyRef*)(f: ResultSet => Unit) = {
     // JH_TODO
   }
 
@@ -35,33 +35,33 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-//  def eachRow(sql: String, params: Object*)(f: Seq[Object] => Unit) = {
+//  def eachRow(sql: String, params: AnyRef*)(f: Seq[AnyRef] => Unit) = {
 //    // JH_TODO
 //  }
 //
-//  def eachRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: Seq[Object] => Unit) = {
+//  def eachRowMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: Seq[AnyRef] => Unit) = {
 //    // JH_TODO
 //  }
 //
 
-  def execute(sql: String, params: Object*): Boolean = {
+  def execute(sql: String, params: AnyRef*): Boolean = {
     prepareAndExecuteStatement(sql, params: _*) {_.execute}
   }
 
 //  // JH_TODO
-//  def executeInsert(sql: String, params: Object*): List[Seq[Object]] = {
+//  def executeInsert(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
 //    List()
 //  }
 
-  def executeUpdate(sql: String, params: Object*): Int = {
+  def executeUpdate(sql: String, params: AnyRef*): Int = {
     prepareAndExecuteStatement(sql, params: _*) {_.executeUpdate()}
   }
 
-  def firstRow(sql: String, params: Object*) : Seq[Object] = {
+  def firstRow(sql: String, params: AnyRef*) : Seq[AnyRef] = {
     firstRowMeta(sql, params: _*) {ResultSetMetaData => }
   }
 
-  def firstRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): Seq[Object] = {
+  def firstRowMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit): Seq[AnyRef] = {
     prepareAndExecuteStatement(sql, params: _*) {
       executeFirstWithResultSet(_)(meta) {
         resultsToSeqRow(_)
@@ -76,11 +76,11 @@ class Db(dataSource: DataSource) {
   // JH_TODO: ResultSet type?
   // JH_TODO: update count?
 
-  def query(sql: String, params: Object*)(f: ResultSet => Unit) {
+  def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
     queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
   }
 
-  def queryMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
+  def queryMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
     prepareAndExecuteStatement(sql, params: _*) {
       executeWithResultSet(_)(meta) {
         f(_)
@@ -92,12 +92,12 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-  def rows(sql: String, params: Object*): List[Seq[Object]] = {
+  def rows(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
     rowsMeta(sql, params: _*) {ResultSetMetaData => }
   }
 
-  def rowsMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
-    val result = new ListBuffer[Seq[Object]]
+  def rowsMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit): List[Seq[AnyRef]] = {
+    val result = new ListBuffer[Seq[AnyRef]]
     prepareAndExecuteStatement(sql, params: _*) {
       executeWithResultSet(_)(meta) {
         result += resultsToSeqRow(_)
@@ -106,13 +106,13 @@ class Db(dataSource: DataSource) {
     result.toList
   }
 
-  private def resultsToSeqRow(resultSet: ResultSet): Seq[Object] = {
+  private def resultsToSeqRow(resultSet: ResultSet): Seq[AnyRef] = {
     // JH_TODO: I can't get the simpler "yield" version below to work.
     // It seems to be some kind of deferred evaluation problem, such that
     // the ResultSet is accessed after it is closed.
     // Maybe we need a way to force the yield to fully evaluate the elements.
     val columnCount = resultSet.getMetaData.getColumnCount
-    val result = new scala.Array[Object](columnCount)
+    val result = new scala.Array[AnyRef](columnCount)
     for (i <- 0 until columnCount) {
       result(i) = resultSet.getObject(i + 1)
     }
@@ -182,7 +182,7 @@ class Db(dataSource: DataSource) {
     }
   }
 
-  private def prepareAndExecuteStatement[T](sql: String, params: Object*)(f: PreparedStatement => T): T = {
+  private def prepareAndExecuteStatement[T](sql: String, params: AnyRef*)(f: PreparedStatement => T): T = {
     executeWithConnection {connection =>
       val statement = connection.prepareStatement(sql)
       try {
