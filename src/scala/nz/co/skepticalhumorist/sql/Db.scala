@@ -112,9 +112,9 @@ class Db(dataSource: DataSource) {
   }
 
   private def resultsToSeqRow(resultSet: ResultSet): Seq[Object] = {
-    val metaData = resultSet.getMetaData
-    val result = new scala.Array[Object](metaData.getColumnCount)
-    for (i <- 0 until metaData.getColumnCount) {
+    val columnCount = resultSet.getMetaData.getColumnCount
+    val result = new scala.Array[Object](columnCount)
+    for (i <- 0 until columnCount) {
       result(i) = resultSet.getObject(i + 1)
     }
     result
@@ -144,9 +144,8 @@ class Db(dataSource: DataSource) {
   private def executeAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
     var first = true
     while (resultSet.next) {
-      val metaData = resultSet.getMetaData
       if (first) {
-        meta(metaData)
+        meta(resultSet.getMetaData)
         first = false
       }
       f(resultSet)
@@ -164,8 +163,7 @@ class Db(dataSource: DataSource) {
   private def executeFirstAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
     // JH_TODO: test result of resultSet.next()
     resultSet.next
-    val metaData = resultSet.getMetaData
-    meta(metaData)
+    meta(resultSet.getMetaData)
     val result = f(resultSet)
     resultSet.close
     result
