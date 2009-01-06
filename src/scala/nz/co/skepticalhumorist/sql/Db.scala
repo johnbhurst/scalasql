@@ -62,8 +62,16 @@ class Db(dataSource: DataSource) {
   }
 
   def firstRow(sql: String, params: Object*) : Seq[Object] = {
-    Nil
-    // JH_TODO
+    firstRowMeta(sql, params: _*) {ResultSetMetaData => }
+  }
+
+  def firstRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): Seq[Object] = {
+    val result = prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
+      executeFirstWithResultSet(preparedStatement)(meta) {resultSet =>
+        resultsToSeqRow(resultSet)
+      }
+    }
+    result.asInstanceOf[Seq[Object]]
   }
 
   // JH_TODO: getConnection?
@@ -146,7 +154,24 @@ class Db(dataSource: DataSource) {
     resultSet.close
   }
 
-  private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => AnyRef) = {
+  private def executeFirstWithResultSet(preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
+    val resultSet = preparedStatement.executeQuery
+    executeFirstAndCloseResultSet(resultSet)(meta)(f)
+  }
+
+  // JH_TODO: return type?
+  // JH_TODO: return Option?
+  private def executeFirstAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
+    // JH_TODO: test result of resultSet.next()
+    resultSet.next
+    val metaData = resultSet.getMetaData
+    meta(metaData)
+    val result = f(resultSet)
+    resultSet.close
+    result
+  }
+
+  private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => AnyRef): AnyRef = {
     executeWithConnection {connection =>
       val statement = connection.prepareStatement(sql)
       for (i <- 0 until params.length) {

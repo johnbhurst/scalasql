@@ -51,5 +51,17 @@ object Test extends Application {
   println(db.executeUpdate("UPDATE test SET name = LOWER(name) WHERE name LIKE '%' || ? || '%'", "T"))
   println(db.executeUpdate("UPDATE test SET name = LOWER(name) WHERE name LIKE '%' || ? || '%'", "T"))
   println(db.executeUpdate("UPDATE test SET name = UPPER(name) WHERE name LIKE '%' || ? || '%'", "t"))
-  
+
+  println("Test 8:")
+  val firstRow = db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3))
+  println(firstRow(0))
+  println(firstRow(1))
+
+  println("Test 9:")
+  val firstRow2 = db.firstRowMeta("SELECT * FROM test WHERE id < ? ORDER BY id DESC", int2Integer(3)) {meta =>
+    println(meta.getColumnName(1))
+    println(meta.getColumnName(2))
+  }
+  println(firstRow2(0))
+  println(firstRow2(1))
 }
