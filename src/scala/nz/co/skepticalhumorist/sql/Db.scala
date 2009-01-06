@@ -93,8 +93,13 @@ class Db(dataSource: DataSource) {
       var first = true
       val resultSet = preparedStatement.executeQuery
       while (resultSet.next) {
-        val resultRow = new scala.Array[Object](resultSet.getMetaData.getColumnCount)
-        for (i <- 0 until resultSet.getMetaData.getColumnCount) {
+        val metaData = resultSet.getMetaData
+        if (first) {
+          meta(metaData)
+          first = false
+        }
+        val resultRow = new scala.Array[Object](metaData.getColumnCount)
+        for (i <- 0 until metaData.getColumnCount) {
           resultRow(i) = resultSet.getObject(i + 1)
         }
         result += resultRow
