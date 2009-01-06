@@ -89,6 +89,7 @@ class Db(dataSource: DataSource) {
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       executeWithResultSet(preparedStatement)(meta) {resultSet =>
         f(resultSet)
+        0
       }
     }
   }
@@ -120,7 +121,7 @@ class Db(dataSource: DataSource) {
     result
   }
 
-  private def executeWithConnection(f: Connection => AnyRef): AnyRef = {
+  private def executeWithConnection[T](f: Connection => T): T = {
     val connection = dataSource.getConnection
     try {
       f(connection)
@@ -130,7 +131,7 @@ class Db(dataSource: DataSource) {
     }
   }
 
-  private def executeWithStatement(f: Statement => AnyRef) = {
+  private def executeWithStatement[T](f: Statement => T): T = {
     executeWithConnection {connection =>
       val statement = connection.createStatement
       try {
@@ -163,14 +164,14 @@ class Db(dataSource: DataSource) {
     }
   }
 
-  private def executeFirstWithResultSet(preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
+  private def executeFirstWithResultSet[T](preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): T = {
     val resultSet = preparedStatement.executeQuery
     executeFirstAndCloseResultSet(resultSet)(meta)(f)
   }
 
   // JH_TODO: return type?
   // JH_TODO: return Option?
-  private def executeFirstAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => AnyRef): AnyRef = {
+  private def executeFirstAndCloseResultSet[T](resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): T = {
     // JH_TODO: test result of resultSet.next()
     try {
       resultSet.next
@@ -182,7 +183,7 @@ class Db(dataSource: DataSource) {
     }
   }
 
-  private def prepareAndExecuteStatement(sql: String, params: Object*)(f: PreparedStatement => AnyRef): AnyRef = {
+  private def prepareAndExecuteStatement[T](sql: String, params: Object*)(f: PreparedStatement => T): T = {
     executeWithConnection {connection =>
       val statement = connection.prepareStatement(sql)
       try {
