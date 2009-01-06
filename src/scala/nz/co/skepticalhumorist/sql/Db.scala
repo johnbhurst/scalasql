@@ -45,9 +45,7 @@ class Db(dataSource: DataSource) {
 //
 
   def execute(sql: String, params: Object*): Boolean = {
-    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      preparedStatement.execute()
-    }
+    prepareAndExecuteStatement(sql, params: _*) {_.execute}
   }
 
 //  // JH_TODO
@@ -56,9 +54,7 @@ class Db(dataSource: DataSource) {
 //  }
 
   def executeUpdate(sql: String, params: Object*): Int = {
-    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      preparedStatement.executeUpdate()
-    }
+    prepareAndExecuteStatement(sql, params: _*) {_.executeUpdate()}
   }
 
   def firstRow(sql: String, params: Object*) : Seq[Object] = {
@@ -66,9 +62,9 @@ class Db(dataSource: DataSource) {
   }
 
   def firstRowMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): Seq[Object] = {
-    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      executeFirstWithResultSet(preparedStatement)(meta) {resultSet =>
-        resultsToSeqRow(resultSet)
+    prepareAndExecuteStatement(sql, params: _*) {
+      executeFirstWithResultSet(_)(meta) {
+        resultsToSeqRow(_)
       }
     }
   }
@@ -80,15 +76,14 @@ class Db(dataSource: DataSource) {
   // JH_TODO: ResultSet type?
   // JH_TODO: update count?
 
-  def query(sql: String, params: Object*)(f: ResultSet => Unit) = {
+  def query(sql: String, params: Object*)(f: ResultSet => Unit) {
     queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
   }
 
-  def queryMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) = {
-    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      executeWithResultSet(preparedStatement)(meta) {resultSet =>
-        f(resultSet)
-        0
+  def queryMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
+    prepareAndExecuteStatement(sql, params: _*) {
+      executeWithResultSet(_)(meta) {
+        f(_)
       }
     }
   }
@@ -103,9 +98,9 @@ class Db(dataSource: DataSource) {
 
   def rowsMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
     val result = new ListBuffer[Seq[Object]]
-    prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
-      executeWithResultSet(preparedStatement)(meta) {resultSet =>
-        result += resultsToSeqRow(resultSet)
+    prepareAndExecuteStatement(sql, params: _*) {
+      executeWithResultSet(_)(meta) {
+        result += resultsToSeqRow(_)
       }
     }
     result.toList
