@@ -70,9 +70,19 @@ class Db(dataSource: DataSource) {
   // JH_TODO: update count?
 
   def query(sql: String, params: Object*)(f: ResultSet => Unit) = {
+    queryMeta(sql, params: _*) {meta: ResultSetMetaData => } (f)
+  }
+
+  def queryMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) = {
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       val resultSet = preparedStatement.executeQuery()
+      var first = true
       while (resultSet.next) {
+        val metaData = resultSet.getMetaData
+        if (first) {
+          meta(metaData)
+          first = false
+        }
         f(resultSet)
       }
       resultSet.close
@@ -84,10 +94,10 @@ class Db(dataSource: DataSource) {
   }
 
   def rows(sql: String, params: Object*): List[Seq[Object]] = {
-    rowsWithMeta(sql, params: _*) {meta: ResultSetMetaData => }
+    rowsMeta(sql, params: _*) {meta: ResultSetMetaData => }
   }
 
-  def rowsWithMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
+  def rowsMeta(sql: String, params: Object*)(meta: ResultSetMetaData => Unit): List[Seq[Object]] = {
     val result = new ListBuffer[Seq[Object]]
     prepareAndExecuteStatement(sql, params: _*) {preparedStatement =>
       var first = true
