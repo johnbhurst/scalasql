@@ -4,14 +4,19 @@
 
 package nz.co.skepticalhumorist.sql
 
+import java.sql.ResultSetMetaData
 import javax.sql.DataSource
 import oracle.jdbc.pool.OracleDataSource
 import org.junit.Before
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import java.math.{BigDecimal => BigDec}
 
 class DbTest {
 
-  def oracleDataSource() : DataSource = {
+  def oracleDataSource: DataSource = {
     val dataSource = new OracleDataSource
     dataSource.setURL("jdbc:oracle:thin:@localhost:1521:ORCL")
     dataSource.setUser("scalasql")
@@ -19,9 +24,22 @@ class DbTest {
     dataSource
   }
 
+  def db: Db = new Db(oracleDataSource)
+
+  var metaRun = false
+
+  def assertMeta(meta: ResultSetMetaData) {
+    assertEquals("ID", meta.getColumnName(1))
+    assertEquals("NAME", meta.getColumnName(2))
+    assertEquals(2, meta.getColumnCount)
+    assertTrue(!metaRun)
+    metaRun = true
+  }
+
+  def bd(i: Int): BigDec = new BigDec(i)
+
   @Before
   def setupData {
-    println("setupData():")
     val db = new Db(oracleDataSource)
     db.execute("DELETE FROM test")
     db.execute("INSERT INTO test VALUES (1, 'ONE')")
@@ -86,7 +104,6 @@ class DbTest {
 
   @Test
   def testExecute {
-    println("testExecute():")
     // JH_TODO?
   }
 
@@ -102,22 +119,40 @@ class DbTest {
 
   @Test
   def testFirstRow {
-    // JH_TODO
+    val row = db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3))
+    assertEquals(bd(1), row(0))
+    assertEquals("ONE", row(1))
+    assertFalse(metaRun)
   }
 
   @Test
   def testFirstRowMeta {
-    // JH_TODO
+    val row = db.firstRowMeta("SELECT * FROM test WHERE id < ? ORDER BY id DESC", int2Integer(3)) (assertMeta)
+    assertEquals(bd(2), row(0))
+    assertEquals("TWO", row(1))
+    assertTrue(metaRun)
   }
 
   @Test
   def testQuery {
-    // JH_TODO
+    var l = List("TWO", "THREE")
+    db.query("SELECT * FROM test WHERE name LIKE '%' || ? || '%' ORDER BY id", "T") {resultSet =>
+      assertEquals(l.head, resultSet.getString("name"))
+      l = l.tail
+    }
+    assertTrue(l.isEmpty)
+    assertFalse(metaRun)
   }
 
   @Test
   def testQueryMeta {
-    // JH_TODO
+    var l = List("TWO", "THREE")
+    db.queryMeta("SELECT * FROM test WHERE name LIKE '%' || ? || '%' ORDER BY id", "T") (assertMeta) {resultSet =>
+      assertEquals(l.head, resultSet.getString("name"))
+      l = l.tail
+    }
+    assertTrue(l.isEmpty)
+    assertTrue(metaRun)
   }
 
   @Test
@@ -127,15 +162,27 @@ class DbTest {
 
   @Test
   def testRows {
-    // JH_TODO
+    var l = List("ONE")
+    val rows = db.rows("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%' ORDER BY id", "T")
+    for (row <- rows) {
+      assertEquals(l.head, row(1))
+      l = l.tail
+    }
+    assertTrue(l.isEmpty)
+    assertFalse(metaRun)
   }
 
   @Test
   def testRowsMeta {
-    // JH_TODO
+    var l = List("ONE")
+    val rows = db.rowsMeta("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%' ORDER BY id", "T") (assertMeta)
+    for (row <- rows) {
+      assertEquals(l.head, row(1))
+      l = l.tail
+    }
+    assertTrue(l.isEmpty)
+    assertTrue(metaRun)
   }
-
-
 
 }
 
