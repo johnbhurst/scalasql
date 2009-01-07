@@ -2,6 +2,10 @@
 
   <typedef onerror="failall" resource="scala/tools/ant/antlib.xml"/>
 
+  <path id="classpath.lib">
+    <fileset dir="lib"/>
+  </path>
+
   <target name="clean">
     <delete dir="build"/>
     <delete dir="test"/>
@@ -18,17 +22,14 @@
 
   <target name="compile-test" depends="compile">
     <scalac srcdir="src/test" destdir="build/classes">
-      <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
-      <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
-      <classpath path="lib/junit-4.4.jar"/>
+      <classpath refid="classpath.lib"/>
     </scalac>
   </target>
 
   <target name="run" depends="compile-test">
     <java classname="nz.co.skepticalhumorist.sql.TestAppApp">
-      <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
-      <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
       <classpath path="build/classes"/>
+      <classpath refid="classpath.lib"/>
     </java>
   </target>
 
@@ -44,9 +45,7 @@
       dir="."
       showoutput="no">
       <classpath path="build/classes"/>
-      <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
-      <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
-      <classpath path="lib/junit-4.4.jar"/>
+      <classpath refid="classpath.lib"/>
       <formatter type="brief" usefile="false"/>
       <formatter type="xml"/>
       <batchtest todir="test">
