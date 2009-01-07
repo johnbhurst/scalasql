@@ -1,0 +1,8 @@
+# $Id$
+# John Hurst (jbhurst@attglobal.net)
+# 2009-01-07
+
+Explicit vs implicit Result type, resulting in functional return rather than value.
+Lazy evaluation after object out of scope -- e.g. on ResultSet that has closed.
+
+
