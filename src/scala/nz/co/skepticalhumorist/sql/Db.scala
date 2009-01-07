@@ -198,7 +198,6 @@ class Db private (
       }
     }
   }
-
 }
 
 object Db {
