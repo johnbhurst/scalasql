@@ -35,15 +35,6 @@ class Db(dataSource: DataSource) {
     // JH_TODO
   }
 
-//  def eachRow(sql: String, params: AnyRef*)(f: Seq[AnyRef] => Unit) = {
-//    // JH_TODO
-//  }
-//
-//  def eachRowMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: Seq[AnyRef] => Unit) = {
-//    // JH_TODO
-//  }
-//
-
   def execute(sql: String, params: AnyRef*): Boolean = {
     prepareAndExecuteStatement(sql, params: _*) {_.execute}
   }
