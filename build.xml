@@ -3,10 +3,13 @@
   <typedef onerror="failall" resource="scala/tools/ant/antlib.xml"/>
 
   <target name="clean">
+    <delete dir="build"/>
+    <delete dir="test"/>
   </target>
 
   <target name="prepare">
     <mkdir dir="build/classes"/>
+    <mkdir dir="test"/>
   </target>
 
   <target name="compile" depends="prepare">
@@ -17,15 +20,41 @@
     <scalac srcdir="src/test" destdir="build/classes">
       <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
       <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
+      <classpath path="lib/junit-4.4.jar"/>
     </scalac>
   </target>
 
   <target name="run" depends="compile-test">
-    <java classname="nz.co.skepticalhumorist.sql.Test">
+    <java classname="nz.co.skepticalhumorist.sql.TestAppApp">
       <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
       <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
       <classpath path="build/classes"/>
     </java>
+  </target>
+
+  <target name="test" depends="compile-test">
+    <junit
+      errorProperty="test.failed"
+      failureproperty="test.failed"
+      printsummary="no"
+      haltonfailure="no"
+      fork="true"
+      forkmode="once"
+      reloading="false"
+      dir="."
+      showoutput="no">
+      <classpath path="build/classes"/>
+      <classpath path="/home/jhurst/.ant/lib/scala-library.jar"/>
+      <classpath path="lib/ojdbc14-10.2.0.3.0.jar"/>
+      <classpath path="lib/junit-4.4.jar"/>
+      <formatter type="brief" usefile="false"/>
+      <formatter type="xml"/>
+      <batchtest todir="test">
+        <fileset dir="build/classes">
+          <include name="**/*Test.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
   </target>
 
 </project>
