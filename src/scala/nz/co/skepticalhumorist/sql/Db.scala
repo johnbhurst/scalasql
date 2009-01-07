@@ -52,11 +52,11 @@ class Db private (
     prepareAndExecuteStatement(sql, params: _*) {_.executeUpdate()}
   }
 
-  def firstRow(sql: String, params: AnyRef*) : Seq[AnyRef] = {
+  def firstRow(sql: String, params: AnyRef*) : Option[Seq[AnyRef]] = {
     firstRowMeta(sql, params: _*) {ResultSetMetaData => }
   }
 
-  def firstRowMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit): Seq[AnyRef] = {
+  def firstRowMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit): Option[Seq[AnyRef]] = {
     prepareAndExecuteStatement(sql, params: _*) {
       executeFirstWithResultSet(_)(meta) {
         resultsToSeqRow(_)
@@ -80,9 +80,11 @@ class Db private (
     }
   }
 
-  def queryForValue[T](sql: String, params: AnyRef*): T = {
-    val row = firstRow(sql, params: _*)
-    row(0).asInstanceOf[T]
+  def queryForValue[T](sql: String, params: AnyRef*): Option[T] = {
+    firstRow(sql, params: _*) match {
+      case Some(row) => Some(row(0).asInstanceOf[T])
+      case None => None
+    }
   }
 
   def rollback() {
@@ -166,18 +168,20 @@ class Db private (
     }
   }
 
-  private def executeFirstWithResultSet[T](preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): T = {
+  private def executeFirstWithResultSet[T](preparedStatement: PreparedStatement)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): Option[T] = {
     val resultSet = preparedStatement.executeQuery
     executeFirstAndCloseResultSet(resultSet)(meta)(f)
   }
 
-  // JH_TODO: return Option?
-  private def executeFirstAndCloseResultSet[T](resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): T = {
-    // JH_TODO: test result of resultSet.next()
+  private def executeFirstAndCloseResultSet[T](resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): Option[T] = {
     try {
-      resultSet.next
-      meta(resultSet.getMetaData)
-      f(resultSet)
+      if (resultSet.next) {
+        meta(resultSet.getMetaData)
+        Some(f(resultSet))
+      }
+      else {
+        None
+      }
     }
     finally {
       resultSet.close

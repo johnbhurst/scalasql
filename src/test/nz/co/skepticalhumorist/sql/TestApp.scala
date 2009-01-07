@@ -53,7 +53,10 @@ object TestApp extends Application {
   println(db.executeUpdate("UPDATE test SET name = UPPER(name) WHERE name LIKE '%' || ? || '%'", "t"))
 
   println("TestApp 8:")
-  val firstRow = db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3))
+  val firstRow = db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3)) match {
+    case Some(row) => row
+    case None => throw new RuntimeException("Result expected, none returned")
+  }
   println(firstRow(0))
   println(firstRow(1))
 
@@ -61,6 +64,9 @@ object TestApp extends Application {
   val firstRow2 = db.firstRowMeta("SELECT * FROM test WHERE id < ? ORDER BY id DESC", int2Integer(3)) {meta =>
     println(meta.getColumnName(1))
     println(meta.getColumnName(2))
+  } match {
+    case Some(row) => row
+    case None => throw new RuntimeException("Result expected, none returned")
   }
   println(firstRow2(0))
   println(firstRow2(1))

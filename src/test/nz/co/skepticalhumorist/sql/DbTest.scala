@@ -12,6 +12,7 @@ import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import java.math.{BigDecimal => BigDec}
 
 class DbTest {
@@ -118,19 +119,41 @@ class DbTest {
   }
 
   @Test
-  def testFirstRow {
-    val row = db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3))
-    assertEquals(bd(1), row(0))
-    assertEquals("ONE", row(1))
-    assertFalse(metaRun)
+  def testFirstRowWithResult {
+    db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3)) match {
+      case Some(row) =>
+        assertEquals(bd(1), row(0))
+        assertEquals("ONE", row(1))
+        assertFalse(metaRun)
+      case None => fail("No rows returned")
+    }
   }
 
   @Test
-  def testFirstRowMeta {
-    val row = db.firstRowMeta("SELECT * FROM test WHERE id < ? ORDER BY id DESC", int2Integer(3)) (assertMeta)
-    assertEquals(bd(2), row(0))
-    assertEquals("TWO", row(1))
-    assertTrue(metaRun)
+  def testFirstRowMetaWithResult {
+    db.firstRowMeta("SELECT * FROM test WHERE id < ? ORDER BY id DESC", int2Integer(3)) (assertMeta) match {
+      case Some(row) =>
+        assertEquals(bd(2), row(0))
+        assertEquals("TWO", row(1))
+        assertTrue(metaRun)
+      case None => fail("No rows returned")
+    }
+  }
+
+  @Test
+  def testFirstRowWithoutResult {
+    db.firstRow("SELECT * FROM test WHERE id < -1 ORDER BY id") match {
+      case Some(row) => fail("Row returned, none expected")
+      case None => assertFalse(metaRun)
+    }
+  }
+
+  @Test
+  def testFirstRowMetaWithoutResult {
+    db.firstRowMeta("SELECT * FROM test WHERE id < -1 ORDER BY id") (assertMeta) match {
+      case Some(row) => fail("Row returned, none expected")
+      case None => assertFalse(metaRun)
+    }
   }
 
   @Test
@@ -155,10 +178,26 @@ class DbTest {
     assertTrue(metaRun)
   }
 
+  def assertOptionEquals[T](expected: T, v: Option[T]) : Unit = {
+    v match {
+      case Some(actual) => assertEquals(expected, actual)
+      case None => fail("Option None returned, value expected")
+    }
+  }
+
+  def assertOptionNone[T](v: Option[T]) : Unit = {
+    v match {
+      case Some(actual) => fail("Option value returned, none expected")
+      case None => assertTrue(true)
+    }
+  }
+
   @Test
   def testQueryForValue {
-    assertEquals(bd(1), db.queryForValue("SELECT id FROM test WHERE id = ?", int2Integer(1)))
-    assertEquals("ONE", db.queryForValue("SELECT name FROM test WHERE id = ?", int2Integer(1)))
+    assertOptionEquals(bd(1), db.queryForValue("SELECT id FROM test WHERE id = ?", int2Integer(1)))
+    assertOptionEquals("ONE", db.queryForValue("SELECT name FROM test WHERE id = ?", int2Integer(1)))
+    assertOptionNone(db.queryForValue("SELECT id FROM test WHERE id = -1"))
+    assertOptionNone(db.queryForValue("SELECT name FROM test WHERE id = -1"))
   }
 
   @Test
