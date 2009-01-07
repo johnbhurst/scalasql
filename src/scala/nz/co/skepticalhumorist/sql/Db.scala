@@ -19,8 +19,6 @@ class Db private (
   def this(dataSource: DataSource) = this(dataSource, null)
   def this(connection: Connection) = this(null, connection)
 
-  // JH_TODO: constructor with Connection
-
   def call(sql: String, params: AnyRef*) = {
     // JH_TODO
   }
@@ -30,11 +28,15 @@ class Db private (
   }
 
   def close = {
-    // JH_TODO
+    if (connection != null) {
+      connection.close
+    }
   }
 
   def commit = {
-    // JH_TODO
+    if (connection != null) {
+      connection.close
+    }
   }
 
   def execute(sql: String, params: AnyRef*): Boolean = {
@@ -62,12 +64,9 @@ class Db private (
     }
   }
 
-  // JH_TODO: getConnection?
-  // JH_TODO: getDataSource?
-  // JH_TODO: ResultSet concurrency?
-  // JH_TODO: ResultSet holdability?
-  // JH_TODO: ResultSet type?
-  // JH_TODO: update count?
+  def getConnection: Connection = connection
+
+  def getDataSource: DataSource = dataSource
 
   def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
     queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
@@ -87,7 +86,9 @@ class Db private (
   }
 
   def rollback() {
-    // JH_TODO
+    if (connection != null) {
+      connection.rollback
+    }
   }
 
   def rows(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
@@ -198,22 +199,29 @@ class Db private (
 }
 
 object Db {
-  def apply(url: String): Db = {
-    null // JH_TODO
+  def loadDriverClass(driverClassName: String) {
+    Class.forName(driverClassName)
   }
-  def apply(url: String, props: Properties): Db = {
-    null // JH_TODO
+
+  def apply(url: String): Db = {
+    new Db(DriverManager.getConnection(url))
+  }
+  def apply(url: String, properties: Properties): Db = {
+    new Db(DriverManager.getConnection(url, properties))
   }
   def apply(url: String, props: Properties, driverClassName: String): Db = {
-    null // JH_TODO
+    loadDriverClass(driverClassName)
+    apply(url, props)
   }
   def apply(url: String, driverClassName: String): Db = {
-    null // JH_TODO
+    loadDriverClass(driverClassName)
+    apply(url)
   }
   def apply(url: String, user: String, password: String): Db = {
-    null // JH_TODO
+    new Db(DriverManager.getConnection(url, user, password))
   }
   def apply(url: String, user: String, password: String, driverClassName: String): Db = {
-    null // JH_TODO
+    loadDriverClass(driverClassName)
+    new Db(DriverManager.getConnection(url, user, password))
   }
 }
