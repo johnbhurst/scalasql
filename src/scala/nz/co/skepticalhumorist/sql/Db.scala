@@ -8,16 +8,11 @@ import scala.collection.mutable.ListBuffer
 import scala.runtime.RichBoolean
 import java.sql._
 import javax.sql._
+import java.util.Properties
 
 class Db(dataSource: DataSource) {
 
   // JH_TODO: constructor with Connection
-  // JH_TODO: newInstance with URL
-  // JH_TODO: newInstance with URL, properties
-  // JH_TODO: newInstance with URL, properties, driver class name
-  // JH_TODO: newInstance with URL, driver class name
-  // JH_TODO: newInstance with URL, user, password
-  // JH_TODO: newInstance with URL, user, password, driver class name
 
   def call(sql: String, params: AnyRef*) = {
     // JH_TODO
@@ -193,4 +188,58 @@ class Db(dataSource: DataSource) {
     }
   }
 
+}
+
+class DriverManagerDataSource extends DataSource {
+  var loginTimeout: Int = 0
+  var logWriter: java.io.PrintWriter = null
+  var user: String = null
+  var password: String = null
+  var properties: Properties = null
+  var driverClassName: String = null
+  def getConnection: Connection = {
+    getConnection(null, null)
+  }
+  def getConnection(theUser: String, thePassword: String): Connection = {
+    null // JH_TODO
+  }
+  def getLoginTimeout(): Int = {
+    loginTimeout
+  }
+  def setLoginTimeout(v: Int): Unit = {
+    loginTimeout = v
+  }
+  def getLogWriter(): java.io.PrintWriter = {
+    logWriter
+  }
+  def setLogWriter(v: java.io.PrintWriter): Unit = {
+    logWriter = v
+  }
+  def isWrapperFor(cls: java.lang.Class[_]): Boolean = {
+    false // JH_TODO
+  }
+  def unwrap[T](cls: java.lang.Class[T]): T = {
+    throw new UnsupportedOperationException("unwrap() not supported")
+  }
+}
+
+object Db {
+  def apply(url: String): Db = {
+    null // JH_TODO
+  }
+  def apply(url: String, props: Properties): Db = {
+    null // JH_TODO
+  }
+  def apply(url: String, props: Properties, driverClassName: String): Db = {
+    null // JH_TODO
+  }
+  def apply(url: String, driverClassName: String): Db = {
+    null // JH_TODO
+  }
+  def apply(url: String, user: String, password: String): Db = {
+    null // JH_TODO
+  }
+  def apply(url: String, user: String, password: String, driverClassName: String): Db = {
+    null // JH_TODO
+  }
 }
