@@ -88,6 +88,11 @@ class Db(dataSource: DataSource) {
     }
   }
 
+  def queryForValue[T](sql: String, params: AnyRef*): T = {
+    val row = firstRow(sql, params: _*)
+    row(0).asInstanceOf[T]
+  }
+
   def rollback() {
     // JH_TODO
   }

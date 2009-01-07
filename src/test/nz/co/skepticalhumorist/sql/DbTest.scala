@@ -156,6 +156,12 @@ class DbTest {
   }
 
   @Test
+  def testQueryForValue {
+    assertEquals(bd(1), db.queryForValue("SELECT id FROM test WHERE id = ?", int2Integer(1)))
+    assertEquals("ONE", db.queryForValue("SELECT name FROM test WHERE id = ?", int2Integer(1)))
+  }
+
+  @Test
   def testRollback {
     // JH_TODO
   }
