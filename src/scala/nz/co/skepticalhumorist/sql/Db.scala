@@ -121,12 +121,15 @@ class Db private (
   }
 
   private def executeWithConnection[T](f: Connection => T): T = {
-    val connection = dataSource.getConnection
+    val connection =
+      if (dataSource != null) dataSource.getConnection else this.connection
     try {
       f(connection)
     }
     finally {
-      connection.close
+      if (dataSource != null) {
+        connection.close
+      }
     }
   }
 
