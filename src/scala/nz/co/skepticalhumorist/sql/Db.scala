@@ -10,6 +10,7 @@ import java.sql._
 import javax.sql._
 import java.util.Properties
 
+// This Scala class is based on the Groovy standard library Sql class.
 class Db(dataSource: DataSource) {
 
   // JH_TODO: constructor with Connection
