@@ -89,17 +89,22 @@ class DbTest {
   }
 
   @Test
+  def testCommit {
+    // JH_TODO
+  }
+
+  @Test
+  def testRollback {
+    // JH_TODO
+  }
+
+  @Test
   def testCall {
     // JH_TODO
   }
 
   @Test
   def testCallResultSet {
-    // JH_TODO
-  }
-
-  @Test
-  def testCommit {
     // JH_TODO
   }
 
@@ -198,11 +203,6 @@ class DbTest {
     assertOptionEquals("ONE", db.queryForValue("SELECT name FROM test WHERE id = ?", int2Integer(1)))
     assertOptionNone(db.queryForValue("SELECT id FROM test WHERE id = -1"))
     assertOptionNone(db.queryForValue("SELECT name FROM test WHERE id = -1"))
-  }
-
-  @Test
-  def testRollback {
-    // JH_TODO
   }
 
   @Test

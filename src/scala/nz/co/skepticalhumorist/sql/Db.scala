@@ -11,9 +11,10 @@ import javax.sql._
 import java.util.Properties
 
 // This Scala class is based on the Groovy standard library groovy.sql.Sql class.
+// Main constructor with both DataSource and Connection is private: use one or the other.
 class Db private (
-  private val dataSource: DataSource,
-  private val connection: Connection
+  val dataSource: DataSource,
+  val connection: Connection
 ) {
 
   def this(dataSource: DataSource) = this(dataSource, null)
@@ -36,6 +37,12 @@ class Db private (
   def commit = {
     if (connection != null) {
       connection.close
+    }
+  }
+
+  def rollback() {
+    if (connection != null) {
+      connection.rollback
     }
   }
 
@@ -64,10 +71,6 @@ class Db private (
     }
   }
 
-  def getConnection: Connection = connection
-
-  def getDataSource: DataSource = dataSource
-
   def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
     queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
   }
@@ -84,12 +87,6 @@ class Db private (
     firstRow(sql, params: _*) match {
       case Some(row) => Some(row(0).asInstanceOf[T])
       case None => None
-    }
-  }
-
-  def rollback() {
-    if (connection != null) {
-      connection.rollback
     }
   }
 
