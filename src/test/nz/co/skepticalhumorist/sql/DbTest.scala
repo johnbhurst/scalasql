@@ -71,12 +71,12 @@ class DbTest {
 
   @Test
   def testNewInstanceWithUrlAndProperties {
-    // JH_TODO
+    // JH_TODO: Need Oracle-specific properties to test, or another DB
   }
 
   @Test
   def testNewInstanceWithUrlAndPropertiesAndDriverClassName {
-    // JH_TODO
+    // JH_TODO: Need Oracle-specific properties to test, or another DB
   }
 
   @Test
