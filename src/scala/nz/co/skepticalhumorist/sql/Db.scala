@@ -5,7 +5,6 @@
 package nz.co.skepticalhumorist.sql
 
 import scala.collection.mutable.ListBuffer
-import scala.runtime.RichBoolean
 import java.sql._
 import javax.sql._
 import java.util.Properties
