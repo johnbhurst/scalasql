@@ -150,13 +150,12 @@ class Db private (
   }
 
   private def executeAndCloseResultSet(resultSet: ResultSet)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
-    var first = true
     try {
+      if (resultSet.next) {
+        meta(resultSet.getMetaData)
+        f(resultSet)
+      }
       while (resultSet.next) {
-        if (first) {
-          meta(resultSet.getMetaData)
-          first = false
-        }
         f(resultSet)
       }
     }
