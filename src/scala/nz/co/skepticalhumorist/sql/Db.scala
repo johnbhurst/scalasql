@@ -106,17 +106,20 @@ class Db private (
 
   private def resultsToSeqRow(resultSet: ResultSet): Seq[AnyRef] = {
     // JH_TODO: I can't get the simpler "yield" version below to work.
-    // It seems to be some kind of deferred evaluation problem, such that
-    // the ResultSet is accessed after it is closed.
-    // Maybe we need a way to force the yield to fully evaluate the elements.
+    // The problem is that for/yield returns a functional/proxy Seq, not the real Seq.
+    // The elements in the Seq are not fully evaluated until they are dereferenced --
+    // that doesn't work here because the ResultSet is closed by then.
+    // I wonder how we could force the for/yield to fully evaluate its loop.
+
+//    for (i <- 0 until resultSet.getMetaData.getColumnCount)
+//      yield resultSet.getObject(i + 1)
+
     val columnCount = resultSet.getMetaData.getColumnCount
     val result = new scala.Array[AnyRef](columnCount)
     for (i <- 0 until columnCount) {
       result(i) = resultSet.getObject(i + 1)
     }
     result
-//    for (i <- 0 until columnCount)
-//      yield resultSet.getObject(i + 1)
   }
 
   private def executeWithConnection[T](f: Connection => T): T = {
