@@ -10,12 +10,13 @@ import javax.sql._
 import java.util.Properties
 
 // This Scala class is based on the Groovy standard library groovy.sql.Sql class.
-// Main constructor with both DataSource and Connection is private: use one or the other.
+// Primary constructor with both DataSource and Connection is private: use auxiliary constructors.
 class Db private (
   val dataSource: DataSource,
   val connection: Connection
 ) {
 
+  // Auxiliary constructors for DataSource or Connection.
   def this(dataSource: DataSource) = this(dataSource, null)
   def this(connection: Connection) = this(null, connection)
 
