@@ -10,7 +10,7 @@ import java.sql._
 import javax.sql._
 import java.util.Properties
 
-// This Scala class is based on the Groovy standard library Sql class.
+// This Scala class is based on the Groovy standard library groovy.sql.Sql class.
 class Db private (
   private val dataSource: DataSource,
   private val connection: Connection
