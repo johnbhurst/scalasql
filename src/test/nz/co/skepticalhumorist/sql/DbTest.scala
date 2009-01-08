@@ -50,12 +50,17 @@ class DbTest {
 
   @Test
   def testConstructWithDataSource {
-    // JH_TODO
+    val db = new Db(oracleDataSource)
+    assertTrue(db.dataSource != null)
+    assertTrue(db.connection == null)
   }
 
   @Test
   def testConstructWithConnection {
-    // JH_TODO
+    val connection = oracleDataSource.getConnection
+    val db = new Db(connection)
+    assertTrue(db.dataSource == null)
+    assertTrue(db.connection != null)
   }
 
   @Test
