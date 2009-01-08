@@ -65,7 +65,8 @@ class DbTest {
 
   @Test
   def testNewInstanceWithUrl {
-    // JH_TODO
+    val db = Db("jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL")
+    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
   }
 
   @Test
@@ -80,17 +81,20 @@ class DbTest {
 
   @Test
   def testNewInstanceWithUrlAndDriverClassName {
-    // JH_TODO
+    val db = Db("jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL", "oracle.jdbc.OracleDriver")
+    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
   }
 
   @Test
   def testNewInstanceWithUrlAndUserAndPassword {
-    // JH_TODO
+    val db = Db("jdbc:oracle:thin:@localhost:1521:ORCL", "scalasql", "scalasql")
+    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
   }
 
   @Test
   def testNewInstanceWithUrlAndUserAndPasswordAndDriverClassName {
-    // JH_TODO
+    val db = Db("jdbc:oracle:thin:@localhost:1521:ORCL", "scalasql", "scalasql", "oracle.jdbc.OracleDriver")
+    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
   }
 
   @Test
