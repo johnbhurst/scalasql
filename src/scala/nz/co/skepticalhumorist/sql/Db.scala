@@ -202,7 +202,7 @@ class Db private (
 }
 
 object Db {
-  def loadDriverClass(driverClassName: String) {
+  private def loadDriverClass(driverClassName: String) {
     Class.forName(driverClassName)
   }
 
