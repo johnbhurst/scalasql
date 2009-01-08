@@ -134,7 +134,7 @@ class DbTest {
 
   @Test
   def testFirstRowWithResult {
-    db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", 3) match {
+    db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3)) match {
       case Some(row) =>
         assertEquals(bd(1), row(0))
         assertEquals("ONE", row(1))
