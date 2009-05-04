@@ -26,6 +26,12 @@
     </scalac>
   </target>
 
+  <target name="jar" depends="compile">
+    <jar destfile="scalasql.jar">
+      <fileset dir="build/classes"/>
+    </jar>
+  </target>
+
   <target name="run" depends="compile-test">
     <java classname="nz.co.skepticalhumorist.sql.TestAppApp">
       <classpath path="build/classes"/>
@@ -57,4 +63,3 @@
   </target>
 
 </project>
-        
