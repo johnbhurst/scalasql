@@ -2,4 +2,8 @@ build/*
 out/*
 test/*
 scalasql.iws
+scalasql.jar
+scalasql.vpj
+scalasql.vpw*
+scalasql.vtg
 
