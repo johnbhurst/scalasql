@@ -71,36 +71,6 @@ class Db private (
     }
   }
 
-  def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
-    queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
-  }
-
-  def queryMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
-    prepareAndExecuteStatement(sql, params: _*) {
-      executeWithResultSet(_)(meta) {
-        f(_)
-      }
-    }
-  }
-
-  def queryForValue[T](sql: String, params: AnyRef*): Option[T] = {
-    firstRow(sql, params: _*) match {
-      case Some(row) => Some(row(0).asInstanceOf[T])
-      case None => None
-    }
-  }
-
-  def queryForList[T](sql: String, params: AnyRef*)(f: ResultSet => Option[T]): List[T] = {
-    val result = new ListBuffer[T]
-    query(sql, params: _*) {
-      f(_) match {
-        case Some(v) => result += v
-        case None =>
-      }
-    }
-    result.toList
-  }
-
   def rows(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
     rowsMeta(sql, params: _*) {ResultSetMetaData => }
   }
@@ -131,6 +101,36 @@ class Db private (
       result(i) = resultSet.getObject(i + 1)
     }
     result
+  }
+
+  def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
+    queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
+  }
+
+  def queryMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
+    prepareAndExecuteStatement(sql, params: _*) {
+      executeWithResultSet(_)(meta) {
+        f(_)
+      }
+    }
+  }
+
+  def queryForValue[T](sql: String, params: AnyRef*): Option[T] = {
+    firstRow(sql, params: _*) match {
+      case Some(row) => Some(row(0).asInstanceOf[T])
+      case None => None
+    }
+  }
+
+  def queryForList[T](sql: String, params: AnyRef*)(f: ResultSet => Option[T]): List[T] = {
+    val result = new ListBuffer[T]
+    query(sql, params: _*) {
+      f(_) match {
+        case Some(v) => result += v
+        case None =>
+      }
+    }
+    result.toList
   }
 
   private def executeWithConnection[T](f: Connection => T): T = {
