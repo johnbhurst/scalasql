@@ -90,6 +90,17 @@ class Db private (
     }
   }
 
+  def queryForList[T](sql: String, params: AnyRef*)(f: ResultSet => Option[T]): List[T] = {
+    val result = new ListBuffer[T]
+    query(sql, params: _*) {
+      f(_) match {
+        case Some(v) => result += v
+        case None =>
+      }
+    }
+    result.toList
+  }
+
   def rows(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
     rowsMeta(sql, params: _*) {ResultSetMetaData => }
   }

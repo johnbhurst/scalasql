@@ -215,6 +215,25 @@ class DbTest {
   }
 
   @Test
+  def testQueryForList {
+    var l = List("TWO", "THREE")
+    var ql = db.queryForList("SELECT * FROM test WHERE LENGTH(name) > ? ORDER BY id", int2Integer(2)) {resultSet =>
+      val v = resultSet.getString("name")
+      if (v.startsWith("T")) {
+        Some(v)
+      }
+      else {
+        None
+      }
+    }
+    while (!l.isEmpty) {
+      assertEquals(l.head, ql.head)
+      l = l.tail
+      ql = ql.tail
+    }
+  }
+
+  @Test
   def testRows {
     var l = List("ONE")
     val rows = db.rows("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%' ORDER BY id", "T")
