@@ -144,17 +144,6 @@ class DbTest {
   }
 
   @Test
-  def testFirstRowMetaWithResult {
-    db.firstRowMeta("SELECT * FROM test WHERE id < ? ORDER BY id DESC", int2Integer(3)) (assertMeta) match {
-      case Some(row) =>
-        assertEquals(bd(2), row(0))
-        assertEquals("TWO", row(1))
-        assertTrue(metaRun)
-      case None => fail("No rows returned")
-    }
-  }
-
-  @Test
   def testFirstRowWithoutResult {
     db.firstRow("SELECT * FROM test WHERE id < -1 ORDER BY id") match {
       case Some(row) => fail("Row returned, none expected")
@@ -163,11 +152,15 @@ class DbTest {
   }
 
   @Test
-  def testFirstRowMetaWithoutResult {
-    db.firstRowMeta("SELECT * FROM test WHERE id < -1 ORDER BY id") (assertMeta) match {
-      case Some(row) => fail("Row returned, none expected")
-      case None => assertFalse(metaRun)
+  def testRows {
+    var l = List("ONE")
+    val rows = db.rows("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%' ORDER BY id", "T")
+    for (row <- rows) {
+      assertEquals(l.head, row(1))
+      l = l.tail
     }
+    assertTrue(l.isEmpty)
+    assertFalse(metaRun)
   }
 
   @Test
@@ -232,30 +225,5 @@ class DbTest {
       ql = ql.tail
     }
   }
-
-  @Test
-  def testRows {
-    var l = List("ONE")
-    val rows = db.rows("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%' ORDER BY id", "T")
-    for (row <- rows) {
-      assertEquals(l.head, row(1))
-      l = l.tail
-    }
-    assertTrue(l.isEmpty)
-    assertFalse(metaRun)
-  }
-
-  @Test
-  def testRowsMeta {
-    var l = List("ONE")
-    val rows = db.rowsMeta("SELECT * FROM test WHERE name NOT LIKE '%' || ? || '%' ORDER BY id", "T") (assertMeta)
-    for (row <- rows) {
-      assertEquals(l.head, row(1))
-      l = l.tail
-    }
-    assertTrue(l.isEmpty)
-    assertTrue(metaRun)
-  }
-
 }
 

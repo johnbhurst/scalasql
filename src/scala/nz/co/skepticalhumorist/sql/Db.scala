@@ -59,26 +59,22 @@ class Db private (
     prepareAndExecuteStatement(sql, params: _*) {_.executeUpdate()}
   }
 
-  def firstRow(sql: String, params: AnyRef*) : Option[Seq[AnyRef]] = {
-    firstRowMeta(sql, params: _*) {ResultSetMetaData => }
+  private def nopMeta(meta: ResultSetMetaData) {
+    // do nothing
   }
 
-  def firstRowMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit): Option[Seq[AnyRef]] = {
+  def firstRow(sql: String, params: AnyRef*) : Option[Seq[AnyRef]] = {
     prepareAndExecuteStatement(sql, params: _*) {
-      executeFirstWithResultSet(_)(meta) {
+      executeFirstWithResultSet(_)(nopMeta) {
         resultsToSeqRow(_)
       }
     }
   }
 
   def rows(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
-    rowsMeta(sql, params: _*) {ResultSetMetaData => }
-  }
-
-  def rowsMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit): List[Seq[AnyRef]] = {
     val result = new ListBuffer[Seq[AnyRef]]
     prepareAndExecuteStatement(sql, params: _*) {
-      executeWithResultSet(_)(meta) {
+      executeWithResultSet(_)(nopMeta) {
         result += resultsToSeqRow(_)
       }
     }
@@ -104,7 +100,7 @@ class Db private (
   }
 
   def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
-    queryMeta(sql, params: _*) {ResultSetMetaData => } (f)
+    queryMeta(sql, params: _*)(nopMeta) (f)
   }
 
   def queryMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
