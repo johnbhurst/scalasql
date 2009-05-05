@@ -64,21 +64,11 @@ class Db private (
   }
 
   def firstRow(sql: String, params: AnyRef*) : Option[Seq[AnyRef]] = {
-    prepareAndExecuteStatement(sql, params: _*) {
-      executeFirstWithResultSet(_)(nopMeta) {
-        resultsToSeqRow(_)
-      }
-    }
+    queryFirst(sql, params: _*)(resultsToSeqRow)
   }
 
   def rows(sql: String, params: AnyRef*): List[Seq[AnyRef]] = {
-    val result = new ListBuffer[Seq[AnyRef]]
-    prepareAndExecuteStatement(sql, params: _*) {
-      executeWithResultSet(_)(nopMeta) {
-        result += resultsToSeqRow(_)
-      }
-    }
-    result.toList
+    queryList(sql, params: _*)(resultsToSeqRow)
   }
 
   private def resultsToSeqRow(resultSet: ResultSet): Seq[AnyRef] = {
@@ -99,8 +89,32 @@ class Db private (
     result
   }
 
+  def queryForString(sql: String, params: AnyRef*): Option[String] = {
+    queryFirst(sql, params: _*) {resultSet: ResultSet =>
+      resultSet.getString(1)
+    }
+  }
+
+  def queryForInt(sql: String, params: AnyRef*): Option[Int] = {
+    queryFirst(sql, params: _*) {resultSet: ResultSet =>
+      resultSet.getInt(1)
+    }
+  }
+
+  def queryFirst[T](sql: String, params: AnyRef*)(f: ResultSet => T): Option[T] = {
+    queryFirstMeta(sql, params: _*)(nopMeta)(f)
+  }
+
+  def queryFirstMeta[T](sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: ResultSet => T): Option[T] = {
+    prepareAndExecuteStatement(sql, params: _*) {
+      executeFirstWithResultSet(_)(meta) {
+        f(_)
+      }
+    }
+  }
+
   def query(sql: String, params: AnyRef*)(f: ResultSet => Unit) {
-    queryMeta(sql, params: _*)(nopMeta) (f)
+    queryMeta(sql, params: _*)(nopMeta)(f)
   }
 
   def queryMeta(sql: String, params: AnyRef*)(meta: ResultSetMetaData => Unit)(f: ResultSet => Unit) {
@@ -111,14 +125,7 @@ class Db private (
     }
   }
 
-  def queryForValue[T](sql: String, params: AnyRef*): Option[T] = {
-    firstRow(sql, params: _*) match {
-      case Some(row) => Some(row(0).asInstanceOf[T])
-      case None => None
-    }
-  }
-
-  def queryForList[T](sql: String, params: AnyRef*)(f: ResultSet => T): List[T] = {
+  def queryList[T](sql: String, params: AnyRef*)(f: ResultSet => T): List[T] = {
     val result = new ListBuffer[T]
     query(sql, params: _*) {
       result += f(_)

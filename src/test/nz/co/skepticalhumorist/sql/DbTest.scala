@@ -66,7 +66,7 @@ class DbTest {
   @Test
   def testNewInstanceWithUrl {
     val db = Db("jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL")
-    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
+    assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
   @Test
@@ -82,19 +82,19 @@ class DbTest {
   @Test
   def testNewInstanceWithUrlAndDriverClassName {
     val db = Db("jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL", "oracle.jdbc.OracleDriver")
-    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
+    assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
   @Test
   def testNewInstanceWithUrlAndUserAndPassword {
     val db = Db("jdbc:oracle:thin:@localhost:1521:ORCL", "scalasql", "scalasql")
-    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
+    assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
   @Test
   def testNewInstanceWithUrlAndUserAndPasswordAndDriverClassName {
     val db = Db("jdbc:oracle:thin:@localhost:1521:ORCL", "scalasql", "scalasql", "oracle.jdbc.OracleDriver")
-    assertOptionEquals(bd(3), db.queryForValue("SELECT COUNT(*) FROM test"))
+    assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
   @Test
@@ -200,17 +200,17 @@ class DbTest {
   }
 
   @Test
-  def testQueryForValue {
-    assertOptionEquals(bd(1), db.queryForValue("SELECT id FROM test WHERE id = ?", int2Integer(1)))
-    assertOptionEquals("ONE", db.queryForValue("SELECT name FROM test WHERE id = ?", int2Integer(1)))
-    assertOptionNone(db.queryForValue("SELECT id FROM test WHERE id = -1"))
-    assertOptionNone(db.queryForValue("SELECT name FROM test WHERE id = -1"))
+  def testQueryFirst {
+    assertOptionEquals(1, db.queryForInt("SELECT id FROM test WHERE id = ?", int2Integer(1)))
+    assertOptionEquals("ONE", db.queryForString("SELECT name FROM test WHERE id = ?", int2Integer(1)))
+    assertOptionNone(db.queryForInt("SELECT id FROM test WHERE id = -1"))
+    assertOptionNone(db.queryForString("SELECT name FROM test WHERE id = -1"))
   }
 
   @Test
-  def testQueryForList {
+  def testQueryList {
     var l = List("TWO", "THREE")
-    var ql = db.queryForList("SELECT * FROM test WHERE name LIKE '%' ||  ? || '%' ORDER BY id", "T") {resultSet =>
+    var ql = db.queryList("SELECT * FROM test WHERE name LIKE '%' ||  ? || '%' ORDER BY id", "T") {resultSet =>
       resultSet.getString("name")
     }
     while (!l.isEmpty) {
