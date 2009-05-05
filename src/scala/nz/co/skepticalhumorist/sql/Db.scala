@@ -118,13 +118,10 @@ class Db private (
     }
   }
 
-  def queryForList[T](sql: String, params: AnyRef*)(f: ResultSet => Option[T]): List[T] = {
+  def queryForList[T](sql: String, params: AnyRef*)(f: ResultSet => T): List[T] = {
     val result = new ListBuffer[T]
     query(sql, params: _*) {
-      f(_) match {
-        case Some(v) => result += v
-        case None =>
-      }
+      result += f(_)
     }
     result.toList
   }

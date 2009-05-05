@@ -210,14 +210,8 @@ class DbTest {
   @Test
   def testQueryForList {
     var l = List("TWO", "THREE")
-    var ql = db.queryForList("SELECT * FROM test WHERE LENGTH(name) > ? ORDER BY id", int2Integer(2)) {resultSet =>
-      val v = resultSet.getString("name")
-      if (v.startsWith("T")) {
-        Some(v)
-      }
-      else {
-        None
-      }
+    var ql = db.queryForList("SELECT * FROM test WHERE name LIKE '%' ||  ? || '%' ORDER BY id", "T") {resultSet =>
+      resultSet.getString("name")
     }
     while (!l.isEmpty) {
       assertEquals(l.head, ql.head)
