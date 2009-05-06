@@ -89,6 +89,12 @@ class Db private (
     result
   }
 
+  def queryForValue[T](sql: String, params: AnyRef*): Option[T] = {
+    queryFirst(sql, params: _*) {resultSet: ResultSet =>
+      resultSet.getObject(1).asInstanceOf[T]
+    }
+  }
+
   def queryForString(sql: String, params: AnyRef*): Option[String] = {
     queryFirst(sql, params: _*) {resultSet: ResultSet =>
       resultSet.getString(1)

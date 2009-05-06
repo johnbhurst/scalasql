@@ -164,6 +164,23 @@ class DbTest {
   }
 
   @Test
+  def testQueryForValue {
+  }
+
+  @Test
+  def testQueryForString {
+  }
+
+  @Test
+  def testQueryForInt {
+  }
+
+  @Test
+  def testQueryFirst {
+  }
+
+
+  @Test
   def testQuery {
     var l = List("TWO", "THREE")
     db.query("SELECT * FROM test WHERE name LIKE '%' || ? || '%' ORDER BY id", "T") {resultSet =>
