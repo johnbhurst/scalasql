@@ -4,7 +4,7 @@
 
 CREATE TABLE test (
   id INTEGER NOT NULL,
-  name VARCHAR2(10) NOT NULL
+  name VARCHAR(10) NOT NULL
 )
 /
 
@@ -14,5 +14,5 @@ INSERT INTO test VALUES (2, 'TWO')
 /
 INSERT INTO test VALUES (3, 'THREE')
 /
-COMMIT WORK
-/
+--COMMIT WORK
+--/

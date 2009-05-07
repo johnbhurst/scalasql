@@ -1,5 +1,6 @@
 <project default="compile">
 
+  <property file="build.properties"/>
   <typedef onerror="failall" resource="scala/tools/ant/antlib.xml"/>
 
   <path id="classpath.lib">
@@ -39,7 +40,15 @@
     </java>
   </target>
 
-  <target name="test" depends="compile-test">
+  <target name="create-database">
+    <delete dir="derby"/>
+    <sql driver="${jdbc.embedded.driver}" url="${jdbc.embedded.url.create}" userid="derby" password="" delimiter="/">
+      <classpath refid="classpath.lib"/>
+      <fileset dir="src/sql" includes="create_tables.sql"/>
+    </sql>
+  </target>
+
+  <target name="test" depends="compile-test, create-database">
     <junit
       errorProperty="test.failed"
       failureproperty="test.failed"

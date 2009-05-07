@@ -1,6 +1,7 @@
 build/*
 out/*
 test/*
+derby/*
 scalasql.iws
 scalasql.jar
 scalasql.vpj
