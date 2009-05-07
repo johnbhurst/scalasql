@@ -17,9 +17,15 @@ import java.math.{BigDecimal => BigDec}
 
 class DbTest {
 
+  def driver = "oracle.jdbc.OracleDriver"
+  def url = "jdbc:oracle:thin:@localhost:1521:ORCL"
+  def urlUserPassword = "jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL"
+  def user = "scalasql"
+  def password = "scalasql"
+
   def oracleDataSource: DataSource = {
     val dataSource = new OracleDataSource
-    dataSource.setURL("jdbc:oracle:thin:@localhost:1521:ORCL")
+    dataSource.setURL(url)
     dataSource.setUser("scalasql")
     dataSource.setPassword("scalasql")
     dataSource
@@ -65,7 +71,7 @@ class DbTest {
 
   @Test
   def testNewInstanceWithUrl {
-    val db = Db("jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL")
+    val db = Db(urlUserPassword)
     assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
@@ -81,19 +87,19 @@ class DbTest {
 
   @Test
   def testNewInstanceWithUrlAndDriverClassName {
-    val db = Db("jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL", "oracle.jdbc.OracleDriver")
+    val db = Db(urlUserPassword, driver)
     assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
   @Test
   def testNewInstanceWithUrlAndUserAndPassword {
-    val db = Db("jdbc:oracle:thin:@localhost:1521:ORCL", "scalasql", "scalasql")
+    val db = Db(url, user, password)
     assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
   @Test
   def testNewInstanceWithUrlAndUserAndPasswordAndDriverClassName {
-    val db = Db("jdbc:oracle:thin:@localhost:1521:ORCL", "scalasql", "scalasql", "oracle.jdbc.OracleDriver")
+    val db = Db(url, user, password, driver)
     assertOptionEquals(3, db.queryForInt("SELECT COUNT(*) FROM test"))
   }
 
@@ -174,11 +180,6 @@ class DbTest {
   @Test
   def testQueryForInt {
   }
-
-  @Test
-  def testQueryFirst {
-  }
-
 
   @Test
   def testQuery {
