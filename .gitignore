@@ -2,6 +2,7 @@ build/*
 out/*
 test/*
 derby/*
+derby.log
 scalasql.iws
 scalasql.jar
 scalasql.vpj
