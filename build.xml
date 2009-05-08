@@ -18,7 +18,9 @@
   </target>
 
   <target name="compile" depends="prepare">
-    <scalac srcdir="src/scala" destdir="build/classes"/>
+    <scalac srcdir="src/scala" destdir="build/classes">
+      <classpath refid="classpath.lib"/>
+    </scalac>
   </target>
 
   <target name="compile-test" depends="compile">
@@ -42,13 +44,13 @@
 
   <target name="create-database">
     <delete dir="derby"/>
-    <sql driver="${jdbc.embedded.driver}" url="${jdbc.embedded.url.create}" userid="derby" password="" delimiter="/">
+    <sql driver="${jdbc.embedded.driver}" url="${jdbc.embedded.url.create}" userid="APP" password="" delimiter="/">
       <classpath refid="classpath.lib"/>
       <fileset dir="src/sql" includes="create_tables.sql"/>
     </sql>
   </target>
 
-  <target name="test" depends="compile-test, create-database">
+  <target name="test" depends="compile-test">
     <junit
       errorProperty="test.failed"
       failureproperty="test.failed"

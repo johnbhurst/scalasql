@@ -6,7 +6,6 @@ package nz.co.skepticalhumorist.sql
 
 import java.sql.ResultSetMetaData
 import javax.sql.DataSource
-import oracle.jdbc.pool.OracleDataSource
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.assertEquals
@@ -14,24 +13,27 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import java.math.{BigDecimal => BigDec}
+import org.apache.derby.jdbc.EmbeddedDataSource
 
 class DbTest {
 
-  def driver = "oracle.jdbc.OracleDriver"
-  def url = "jdbc:oracle:thin:@localhost:1521:ORCL"
-  def urlUserPassword = "jdbc:oracle:thin:scalasql/scalasql@localhost:1521:ORCL"
-  def user = "scalasql"
-  def password = "scalasql"
+  def driver = "org.apache.derby.jdbc.EmbeddedDriver"
+  def name = "derby"
+  def url = "jdbc:derby:derby;create=true"
+  def urlUserPassword = "jdbc:derby:derby"
+  def user = "APP"
+  def password = ""
 
-  def oracleDataSource: DataSource = {
-    val dataSource = new OracleDataSource
-    dataSource.setURL(url)
-    dataSource.setUser("scalasql")
-    dataSource.setPassword("scalasql")
+  def derbyDataSource: DataSource = {
+    val dataSource = new DriverManagerDataSource(url)
+    //dataSource.setDatabaseName(name)
+    //dataSource.setUser("scalasql")
+    //dataSource.setPassword("scalasql")
+    //dataSource.setCreateDatabase("create")
     dataSource
   }
 
-  def db: Db = new Db(oracleDataSource)
+  def db: Db = new Db(derbyDataSource)
 
   var metaRun = false
 
@@ -47,7 +49,7 @@ class DbTest {
 
   @Before
   def setupData {
-    val db = new Db(oracleDataSource)
+    val db = new Db(derbyDataSource)
     db.execute("DELETE FROM test")
     db.execute("INSERT INTO test VALUES (1, 'ONE')")
     db.execute("INSERT INTO test VALUES (2, 'TWO')")
@@ -56,14 +58,14 @@ class DbTest {
 
   @Test
   def testConstructWithDataSource {
-    val db = new Db(oracleDataSource)
+    val db = new Db(derbyDataSource)
     assertTrue(db.dataSource != null)
     assertTrue(db.connection == null)
   }
 
   @Test
   def testConstructWithConnection {
-    val connection = oracleDataSource.getConnection
+    val connection = derbyDataSource.getConnection
     val db = new Db(connection)
     assertTrue(db.dataSource == null)
     assertTrue(db.connection != null)
@@ -142,7 +144,7 @@ class DbTest {
   def testFirstRowWithResult {
     db.firstRow("SELECT * FROM test WHERE id < ? ORDER BY id", int2Integer(3)) match {
       case Some(row) =>
-        assertEquals(bd(1), row(0))
+        assertEquals(1, row(0))
         assertEquals("ONE", row(1))
         assertFalse(metaRun)
       case None => fail("No rows returned")
