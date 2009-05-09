@@ -35,13 +35,6 @@
     </jar>
   </target>
 
-  <target name="run" depends="compile-test">
-    <java classname="nz.co.skepticalhumorist.sql.TestAppApp">
-      <classpath path="build/classes"/>
-      <classpath refid="classpath.lib"/>
-    </java>
-  </target>
-
   <target name="create-database">
     <delete dir="derby"/>
     <sql driver="${jdbc.embedded.driver}" url="${jdbc.embedded.url.create}" userid="APP" password="" delimiter="/">
