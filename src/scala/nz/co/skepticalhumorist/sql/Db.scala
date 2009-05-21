@@ -59,6 +59,21 @@ class Db private (
     prepareAndExecuteStatement(sql, params: _*) {_.executeUpdate()}
   }
 
+  // JH_TODO: addBatch(), clearBatch(), executeBatch()?
+  // JDBC:
+  // Statement#addBatch(String sql)
+  // Statement#clearBatch()
+  // Statement#executeBatch()
+  // PreparedStatement#addBatch()
+  // PreparedStatement#clearParameters()?
+  // Spring:
+  // int[] batchUpdate(String[] sql)
+  // int[] batchUpdate(String sql, BatchPreparedStatementSetter pss)
+
+//  db.executeWithBatch("INSERT INTO t VALUES (?, ?)") {
+//
+//  }
+
   private def nopMeta(meta: ResultSetMetaData) {
     // do nothing
   }
